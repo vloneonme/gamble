@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Game</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            resize: none;
+        }
+        textarea {
+            background: black;
+            color: white;
+            width: 100%;
+            min-height: 80%;
+            height: 80%;
+            padding: 10px;
+            border: 1px solid blue;
+            margin: 0;
+            resize: none;
+            cursor: default;
+            box-sizing: border-box;
+        }
+        button {
+            margin-top: 10px;
+            width: 10%;
+            color: white;
+            border: none;
+            cursor: grab;
+            padding: 10px 20px;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+        input {
+            margin-left: 10%;
+            width: 35%;
+            background: gray;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button.access {
+            margin-left: 10%;
+            background: green
+
+        }
+    </style>
+</head>
+<body>
+    <script src="js/jquery-3.7.1.js"></script>
+    <script>
+        function sendRequest(choice) {
+            $.ajax({
+                url: "http://localhost:8000/",
+                type: "GET",
+                data: { choice: choice },
+                dataType: "json",
+                success: function(data) {
+                    console.log("Получены данные:", data);
+                    if(data && data.message) {
+                        game(data.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Ошибка запроса:", status, error);
+                    console.log("Полный ответ сервера:", xhr.responseText);
+                }
+            });
+        }
+        function access(e) {
+            //sendRequest({'choice': inputField.value});
+            if (e == null) {
+                lastChoice = null;
+            } else {
+                lastChoice = inputField.value
+            }
+            jQuery.get("http://localhost:8000/",{'choice': inputField.value, 'sessionId': sessionId},function(data) {game(data)});
+        }
+
+        function game(data) {
+            if (lastChoice) {
+                textPlace.value += "Введено: " + inputField.value + '\n'
+            }
+            inputField.value = "";
+            message = data.message;
+            console.log(data);
+            textPlace.value += message + '\n';
+            textPlace.scrollTop = textPlace.scrollHeight;
+            console.log(!data.needChoice);
+            if (!data.needChoice) {
+                access(null);
+            }
+        }
+        const textPlace = document.createElement("textarea");
+        textPlace.style.background = "black"
+        textPlace.style.color = "white" //like mr.White, you know?
+        textPlace.readOnly = true;
+        document.body.appendChild(textPlace)
+
+        const inputField = document.createElement("input");
+        inputField.type = "text";
+        inputField.placeholder = " ";
+        inputField.addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                access(e);
+            }
+        });
+        document.body.appendChild(inputField);
+
+        const buttonAccess = document.createElement("button");
+        buttonAccess.setAttribute("class", "access");
+        buttonAccess.textContent = "да"
+        buttonAccess.addEventListener("click", (ev) => access(ev));
+        document.body.appendChild(buttonAccess)
+        let sessionId = null; //вообще, его надо через headers передавать, но я не разобрался
+        let lastChoice = null;
+        //sendRequest(null);
+        jQuery.get("http://localhost:8000/", null, function(data) {
+            sessionId = data.sessionId;
+            game(data);
+        });
+    </script>
+</body>
+</html>
