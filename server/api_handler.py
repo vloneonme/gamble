@@ -3,7 +3,13 @@ from urllib.parse import urlparse, parse_qs
 import json
 import uuid
 
-from Danya_game import proebatb
+import sys
+from pathlib import Path
+
+root_dir = Path(__file__).parent.parent
+sys.path.append(str(root_dir))
+
+import proebatb
 
 SESSIONS = {}
 

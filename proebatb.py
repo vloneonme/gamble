@@ -1,5 +1,11 @@
-from Danya_game.twentyone import funcs_server
-from Danya_game.twentyone import funcs
+import sys
+from pathlib import Path
+
+root_dir = Path(__file__).parent.parent
+sys.path.append(str(root_dir))
+
+from twentyone import funcs_server
+from twentyone import funcs
 
 def main():
     print("Игры: \n (1) - Двадцать одно \n (0) - Выход")
